@@ -23,19 +23,18 @@ namespace DemoRebooted
         Fire.Fire8Bit FireEffect;
         CRTMonitor.CRTMonitor CRTMonitorEffect;
 
-        public DemoEngine(int width, int height)
+        public DemoEngine()
         {
             Stopwatch = new Stopwatch();
             Stopwatch.Start();
-            Resize(width, height);
             FireEffect = new Fire.Fire8Bit(320, 200);
-            CRTMonitorEffect = new CRTMonitor.CRTMonitor();
+            CRTMonitorEffect = new CRTMonitor.CRTMonitor(1920, 1080);
         }
 
         public void Init()
         {
             FireEffect.Init();
-            FireEffect.BitBlend = 0.5f;
+            FireEffect.BitBlend = 0.7f;
             CRTMonitorEffect.Init();
         }
 
@@ -62,6 +61,7 @@ namespace DemoRebooted
             GL.Viewport(0, 0, Width, Height);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             FireEffect.Render();
+            GL.Viewport(0, 0, Width, Height);
             CRTMonitorEffect.Render();
 
         }

@@ -12,11 +12,7 @@ namespace DemoRebooted
     {
         static void Main(string[] args)
         {
-            /*
             var demo = new DemoEngine();
-            Application.Run(new FormDemoMain(demo));
-            */
-            var demo = new DemoEngine(800, 450);
             var demoWindow = new DemoWindow(demo);
             demoWindow.Run();
         }

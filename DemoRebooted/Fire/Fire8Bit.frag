@@ -11,16 +11,21 @@ out vec4 outColor;
 
 vec4 frag8Bit()
 {	
-	int sampleX = int(Texcoord.x*160);
+	int sampleX = int(Texcoord.x*320);
 	if(sampleX % 2 == 1)
 	{
 		sampleX--;
 	}
-	float x = float(sampleX)/160.0;
+	float x = float(sampleX)/320.0;
 
-	//vec4 intensity = texture(texFire, vec2(x, Texcoord.y));
-	vec4 intensity = texture(texFire, Texcoord);
+	vec4 intensity = texture(texFire, vec2(x, Texcoord.y));	
+	
 	vec4 color = texture(texPalette8Bit, intensity.r);
+	// rasterize two colors
+	if((sampleX/2 + int(Texcoord.y*200)) % 2 == 0)
+	{
+		color = texture(texPalette8Bit, intensity.r+0.06);
+	}
 	return color;
 }
 

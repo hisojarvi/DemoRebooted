@@ -12,6 +12,9 @@ namespace DemoRebooted.CRTMonitor
 {
     public class CRTMonitor
     {
+        public int Width { get; }
+        public int Height { get; }
+
         string VertexShaderFile = "DemoRebooted.CRTMonitor.CRTMonitor.vert";
         string FragmentShaderFile = "DemoRebooted.CRTMonitor.CRTMonitor.frag";
 
@@ -46,10 +49,11 @@ namespace DemoRebooted.CRTMonitor
 
         Fire8Bit FireEffect;
 
-        public CRTMonitor()
+        public CRTMonitor(int w, int h)
         {
+            Width = w;
+            Height = h;
             FireEffect = new Fire8Bit(320, 200);
-
         }
 
         public void Init()
@@ -194,9 +198,10 @@ namespace DemoRebooted.CRTMonitor
 
         public void Render()
         {
+            GL.Viewport(0, 0, FireEffect.Width, FireEffect.Height);
             RenderContent();
-
-            GL.UseProgram(ShaderProgram);
+            GL.Viewport(0, 0, Width, Height);
+            GL.UseProgram(ShaderProgram);            
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.BindVertexArray(VAO);

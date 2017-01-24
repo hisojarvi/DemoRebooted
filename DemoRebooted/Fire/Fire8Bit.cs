@@ -46,8 +46,10 @@ namespace DemoRebooted.Fire
                                  0, 2, 3 };
 
         float[] Palette8BitData = { 0.0f, 0.0f, 0.0f,
-                                    1.0f, 0.0f, 0.0f,
-                                    1.0f, 1.0f, 0.0f,
+                                    0.531f, 0.000f, 0.000f,
+                                    1.000f, 0.465f, 0.465f,
+                                    0.863f, 0.531f, 0.330f,
+                                    0.930f, 0.930f, 0.465f,
                                     1.0f, 1.0f, 1.0f,};
 
         float[] Palette16BitData = { 0.0f, 0.0f, 0.0f,
