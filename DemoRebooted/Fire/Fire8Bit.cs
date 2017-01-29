@@ -15,34 +15,24 @@ namespace DemoRebooted.Fire
         public int Height { get; }
 
         public float BitBlend = 0.0f;
-        Animator BitBlendAnimation = new Animator(0.0f, 1.0f, 10000, false);
 
+        ShaderProgram Program;
+        Mesh Canvas;
+        Camera Camera;
 
-        string VertexShaderFile = "DemoRebooted.Fire.Fire8Bit.vert";
-        string FragmentShaderFile = "DemoRebooted.Fire.Fire8Bit.frag";
-
-        int VertexShader;
-        int FragmentShader;
-        int ShaderProgram;
-
-        int VBO;
-        int VAO;
-        int EBO;
         int FireTexture;
         int Palette8BitTexture;
         int Palette16BitTexture;
 
-        int VertexAttribPosition;
-        int VertexAttribTexCoord;
         int UniformBlend;
 
         Random RNG = new Random();
 
 
-        float[] CanvasVertices = { -1.0f,  1.0f, 0.0f, 0.0f,
-                                    1.0f,  1.0f, 1.0f, 0.0f,
-                                    1.0f, -1.0f, 1.0f, 1.0f,
-                                   -1.0f, -1.0f, 0.0f, 1.0f };
+        float[] CanvasVertices = { -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+                                    1.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+                                    1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+                                   -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f };
 
         int[] CanvasElements = { 0, 2, 1,
                                  0, 3, 2 };
@@ -66,21 +56,19 @@ namespace DemoRebooted.Fire
             Width = w;
             Height = h;
             FireData = new byte[w * h];
+            Program = new ShaderProgram(ResourceUtils.ReadResourceFile("DemoRebooted.Fire.Fire8Bit.vert"),
+                                        ResourceUtils.ReadResourceFile("DemoRebooted.Fire.Fire8Bit.frag"));
+            Canvas = new Mesh(CanvasVertices, CanvasElements, Program);
+            Camera = new Camera();
         }
 
         public void Init()
         {
-            InitShaderProgram();
-            InitBuffers();
-            InitVertexAttributes();
-            InitTextures();
-            InitUniforms();        
+            Program.Use();
+            UniformBlend = Program.Uniform("blend");            
+            InitTextures();   
         }
 
-        void InitUniforms()
-        {
-            UniformBlend = GL.GetUniformLocation(ShaderProgram, "blend");
-        }
 
         byte fade = 2;
         void UpdateFireData()
@@ -115,70 +103,7 @@ namespace DemoRebooted.Fire
                           PixelType.UnsignedByte, FireData);           
         }
 
-        void InitShaderProgram()
-        {
-            var vertShaderSource = ReadResourceFile(VertexShaderFile);
-            var fragShaderSource = ReadResourceFile(FragmentShaderFile); 
-           
-            VertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(VertexShader, vertShaderSource);
-            GL.CompileShader(VertexShader);
-            CheckShaderCompilationStatus(VertexShader);
-            
-            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(FragmentShader, fragShaderSource);
-            GL.CompileShader(FragmentShader);
-            CheckShaderCompilationStatus(FragmentShader);
-
-            ShaderProgram = GL.CreateProgram();
-            GL.AttachShader(ShaderProgram, VertexShader);
-            GL.AttachShader(ShaderProgram, FragmentShader);
-            GL.BindFragDataLocation(ShaderProgram, 0, "outColor");
-            GL.LinkProgram(ShaderProgram);        
-            GL.UseProgram(ShaderProgram);
-        }
-
-        void InitBuffers()
-        {
-            VAO = CreateVAO();
-            GL.BindVertexArray(VAO);
-            VBO = CreateVBO(CanvasVertices);
-            EBO = CreateEBO(CanvasElements);
-        }
-
-        int CreateVBO(float[] verts)
-        {
-            var vbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData<float>(BufferTarget.ArrayBuffer, sizeof(float)*verts.Length, verts, BufferUsageHint.StaticDraw );
-            return vbo;
-        }
-
-        int CreateEBO(int[] elements)
-        {
-            var ebo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-            GL.BufferData<int>(BufferTarget.ElementArrayBuffer, sizeof(int) * elements.Length, elements, BufferUsageHint.StaticDraw);
-            return ebo;
-        }
-
-        int CreateVAO()
-        {
-            return GL.GenVertexArray();
-        }
-
-        void InitVertexAttributes()
-        {
-            VertexAttribPosition = GL.GetAttribLocation(ShaderProgram, "position");
-            GL.VertexAttribPointer(VertexAttribPosition, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(VertexAttribPosition);
-
-            VertexAttribTexCoord = GL.GetAttribLocation(ShaderProgram, "texcoord");
-            GL.VertexAttribPointer(VertexAttribTexCoord, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
-            GL.EnableVertexAttribArray(VertexAttribTexCoord);
-
-        }
-
+       
         void InitTextures()
         {            
             // Fire texture
@@ -187,7 +112,7 @@ namespace DemoRebooted.Fire
             GL.BindTexture(TextureTarget.Texture2D, FireTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, Width, Height, 0, PixelFormat.Luminance,
                           PixelType.UnsignedByte, FireData);
-            GL.Uniform1(GL.GetUniformLocation(ShaderProgram, "texFire"), 0);
+            GL.Uniform1(Program.Uniform("texFire"), 0);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
@@ -199,7 +124,7 @@ namespace DemoRebooted.Fire
             GL.BindTexture(TextureTarget.Texture1D, Palette8BitTexture);
             GL.TexImage1D(TextureTarget.Texture1D, 0, PixelInternalFormat.Rgb, 
                           Palette8BitData.Length / 3, 0, PixelFormat.Rgb, PixelType.Float, Palette8BitData);
-            GL.Uniform1(GL.GetUniformLocation(ShaderProgram, "texPalette8Bit"), 1);
+            GL.Uniform1(Program.Uniform("texPalette8Bit"), 1);
 
             GL.TexParameter(TextureTarget.Texture1D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture1D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
@@ -212,58 +137,26 @@ namespace DemoRebooted.Fire
             GL.BindTexture(TextureTarget.Texture1D, Palette16BitTexture);
             GL.TexImage1D(TextureTarget.Texture1D, 0, PixelInternalFormat.Rgb,
                           Palette16BitData.Length / 3, 0, PixelFormat.Rgb, PixelType.Float, Palette16BitData);
-            GL.Uniform1(GL.GetUniformLocation(ShaderProgram, "texPalette16Bit"), 2);
+            GL.Uniform1(Program.Uniform("texPalette16Bit"), 2);
 
             GL.TexParameter(TextureTarget.Texture1D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture1D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture1D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.GenerateMipmap(GenerateMipmapTarget.Texture1D); // Why is this required?
-
-
         }
-
-        void CheckShaderCompilationStatus(int shaderPtr)
-        {
-            int status = 0;
-            GL.GetShader(shaderPtr, ShaderParameter.CompileStatus, out status);
-
-            var GL_FALSE = 0;
-            if (status == GL_FALSE)
-            {
-                var infoLog = new StringBuilder();
-                int infoLength = 0;
-                GL.GetShaderInfoLog(shaderPtr, 512, out infoLength, infoLog);
-                Console.WriteLine(infoLog.ToString());
-            }
-        }
-
-        string ReadResourceFile(string fileName)
-        {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var names = assembly.GetManifestResourceNames();
-            using (Stream stream = assembly.GetManifestResourceStream(fileName))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                return reader.ReadToEnd();
-            }
-        }
-
+        
         public void Update(long deltaMillis)
         {
-            BitBlendAnimation.Update(deltaMillis);
             UpdateFireData();
             UploadFireData();
         }
 
         public void Render()
-        {          
-            GL.UseProgram(ShaderProgram);
-            GL.BindVertexArray(VAO);
-            GL.Uniform1(UniformBlend, BitBlendAnimation.Value);
+        {
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
-            GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            GL.Uniform1(UniformBlend, BitBlend);
+            Canvas.Render(Camera);
         }
     }
 }

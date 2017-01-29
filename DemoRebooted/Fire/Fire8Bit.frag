@@ -39,5 +39,6 @@ vec4 frag16Bit()
 
 void main()
 {	
-	outColor = mix(frag8Bit(), frag16Bit(), blend);
+	outColor = mix(frag8Bit(), frag16Bit(), blend);	
+	//outColor += 0.5 * vec4(Texcoord.x, Texcoord.y, 1.0, 1.0);
 }

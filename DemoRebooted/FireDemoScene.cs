@@ -12,14 +12,16 @@ namespace DemoRebooted
     {
 
         Fire.Fire8Bit FireEffect;
+        Framebuffer FireFrameBuffer;
         CRTMonitor.CRTMonitor CRTMonitorEffect;
 
         public FireDemoScene(DemoEngine engine) : base(engine)
-        {            
+        {
+            FireFrameBuffer = new Framebuffer(320, 200, 3);
             FireEffect = new Fire.Fire8Bit(320, 200);
-            CRTMonitorEffect = new CRTMonitor.CRTMonitor(1920, 1080);
-            FireEffect.Init();
-            FireEffect.BitBlend = 0.65f;
+            CRTMonitorEffect = new CRTMonitor.CRTMonitor(1920, 1080, FireFrameBuffer.Texture);
+            FireEffect.BitBlend = 0.35f;
+            FireEffect.Init();            
             CRTMonitorEffect.Init();            
         }
 
@@ -38,9 +40,10 @@ namespace DemoRebooted
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
             GL.Disable(EnableCap.DepthTest);
+            FireFrameBuffer.Bind();
             FireEffect.Render();
+            FireFrameBuffer.Unbind();
             GL.Enable(EnableCap.DepthTest);
-
             CRTMonitorEffect.Render();
         }
     }
