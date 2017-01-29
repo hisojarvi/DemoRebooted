@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using OpenTK;
 
 namespace DemoRebooted
 {
-    class Program
+    public class Framebuffer
     {
-        static void Main(string[] args)
+
+        public Framebuffer(int width, int height)
         {
-            var demoWindow = new DemoWindow();
-            demoWindow.Run();
+
+
         }
+
     }
 }

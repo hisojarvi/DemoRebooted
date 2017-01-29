@@ -15,6 +15,8 @@ namespace DemoRebooted.Fire
         public int Height { get; }
 
         public float BitBlend = 0.0f;
+        Animator BitBlendAnimation = new Animator(0.0f, 1.0f, 10000, false);
+
 
         string VertexShaderFile = "DemoRebooted.Fire.Fire8Bit.vert";
         string FragmentShaderFile = "DemoRebooted.Fire.Fire8Bit.frag";
@@ -42,8 +44,8 @@ namespace DemoRebooted.Fire
                                     1.0f, -1.0f, 1.0f, 1.0f,
                                    -1.0f, -1.0f, 0.0f, 1.0f };
 
-        int[] CanvasElements = { 0, 1, 2,
-                                 0, 2, 3 };
+        int[] CanvasElements = { 0, 2, 1,
+                                 0, 3, 2 };
 
         float[] Palette8BitData = { 0.0f, 0.0f, 0.0f,
                                     0.531f, 0.000f, 0.000f,
@@ -246,8 +248,9 @@ namespace DemoRebooted.Fire
             }
         }
 
-        public void Update()
+        public void Update(long deltaMillis)
         {
+            BitBlendAnimation.Update(deltaMillis);
             UpdateFireData();
             UploadFireData();
         }
@@ -256,7 +259,7 @@ namespace DemoRebooted.Fire
         {          
             GL.UseProgram(ShaderProgram);
             GL.BindVertexArray(VAO);
-            GL.Uniform1(UniformBlend, BitBlend);
+            GL.Uniform1(UniformBlend, BitBlendAnimation.Value);
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);

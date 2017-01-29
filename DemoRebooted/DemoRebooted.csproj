@@ -56,20 +56,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animator.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="CRTMonitor\CRTMonitor.cs" />
     <Compile Include="DemoEngine.cs" />
     <Compile Include="DemoWindow.cs" />
+    <Compile Include="DemoScene.cs" />
+    <Compile Include="FireDemoScene.cs" />
     <Compile Include="Fire\Fire8Bit.cs" />
+    <Compile Include="Framebuffer.cs" />
+    <Compile Include="Mesh.cs" />
+    <Compile Include="ObjParser\ObjParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceUtils.cs" />
+    <Compile Include="ShaderProgram.cs" />
+    <Compile Include="Texture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <EmbeddedResource Include="Fire\Fire8Bit.frag" />
     <EmbeddedResource Include="Fire\Fire8Bit.vert" />
     <EmbeddedResource Include="CRTMonitor\CRTMonitor.frag" />
-    <EmbeddedResource Include="CRTMonitor\CRTMonitor.vert" />
+    <EmbeddedResource Include="CRTMonitor\3dProjection.vert" />
+    <EmbeddedResource Include="CRTMonitor\LightModel.frag" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="Resources\oldtv.obj" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

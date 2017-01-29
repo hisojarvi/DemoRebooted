@@ -35,7 +35,7 @@ void main()
 			float intensity = MININTENSITY + distanceNormalized*(1.0-MININTENSITY);
 			sampleColor = vec4(intensity * sampleColor.rgb, 1.0);
 		}
-		sampleColor.a = 0.7;
 		outColor = sampleColor;
+		//outColor = vec4(Texcoord.x, Texcoord.y, 0.0, 1.0);
 }
 

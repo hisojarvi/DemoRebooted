@@ -11,16 +11,21 @@ namespace DemoRebooted
     public class DemoWindow : GameWindow
     {
         DemoEngine Engine;
-        public DemoWindow(DemoEngine engine)
+        public DemoWindow()
         {
-            Engine = engine;
-            Width = engine.Width;
-            Height = engine.Height;
             CursorVisible = false;
             WindowState = WindowState.Fullscreen;
             WindowBorder = WindowBorder.Hidden;
             VSync = VSyncMode.On;
             Title = "Demo Rebooted";
+            
+             
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            Engine = new DemoEngine();
             Engine.Init();
         }
 

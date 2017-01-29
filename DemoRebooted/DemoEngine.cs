@@ -20,22 +20,21 @@ namespace DemoRebooted
         public int Width;
         public int Height;
 
-        Fire.Fire8Bit FireEffect;
-        CRTMonitor.CRTMonitor CRTMonitorEffect;
+
+
+        FireDemoScene FireScene;
 
         public DemoEngine()
         {
             Stopwatch = new Stopwatch();
             Stopwatch.Start();
-            FireEffect = new Fire.Fire8Bit(320, 200);
-            CRTMonitorEffect = new CRTMonitor.CRTMonitor(1920, 1080);
+
+            FireScene = new FireDemoScene(this);
         }
 
         public void Init()
         {
-            FireEffect.Init();
-            FireEffect.BitBlend = 0.7f;
-            CRTMonitorEffect.Init();
+
         }
 
         public void Resize(int width, int height)
@@ -49,21 +48,12 @@ namespace DemoRebooted
             Frame++;
             var deltaMillis = Stopwatch.ElapsedMilliseconds - Elapsed;
             Elapsed = Stopwatch.ElapsedMilliseconds;
-
-            FireEffect.Update();
-            CRTMonitorEffect.Update();
+            FireScene.Update(deltaMillis);
         }
 
         public void Render()
         {
-            GL.Enable(EnableCap.AlphaTest);
-            //RenderSanityCheck();
-            GL.Viewport(0, 0, Width, Height);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            FireEffect.Render();
-            GL.Viewport(0, 0, Width, Height);
-            CRTMonitorEffect.Render();
-
+            FireScene.Render();
         }
 
         private void RenderSanityCheck()
