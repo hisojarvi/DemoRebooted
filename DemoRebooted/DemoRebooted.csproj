@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animator.cs" />
+    <Compile Include="Billboard\BillboardEffect.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="CRTMonitor\CRTMonitor.cs" />
     <Compile Include="DemoEngine.cs" />
@@ -80,6 +81,8 @@
     <EmbeddedResource Include="CRTMonitor\CRTMonitor.frag" />
     <EmbeddedResource Include="CRTMonitor\3dProjection.vert" />
     <EmbeddedResource Include="CRTMonitor\LightModel.frag" />
+    <EmbeddedResource Include="Billboard\Billboard.vert" />
+    <EmbeddedResource Include="Billboard\Billboard.frag" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\oldtv.obj" />
   </ItemGroup>

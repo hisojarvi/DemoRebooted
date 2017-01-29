@@ -17,5 +17,10 @@ namespace DemoRebooted
             Id = GL.GenTexture();
             TextureUnit = textureUnit;
         }
+
+        public void Activate()
+        {
+            GL.ActiveTexture(OpenTK.Graphics.OpenGL4.TextureUnit.Texture0 + this.TextureUnit);
+        }
     }
 }

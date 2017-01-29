@@ -36,6 +36,5 @@ void main()
 			sampleColor = vec4(intensity * sampleColor.rgb, 1.0);
 		}
 		outColor = sampleColor;
-		//outColor = vec4(Texcoord.x, Texcoord.y, 0.0, 1.0);
 }
 

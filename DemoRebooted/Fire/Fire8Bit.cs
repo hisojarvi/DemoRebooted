@@ -20,7 +20,7 @@ namespace DemoRebooted.Fire
         Mesh Canvas;
         Camera Camera;
 
-        int FireTexture;
+        public Texture FireTexture;
         int Palette8BitTexture;
         int Palette16BitTexture;
 
@@ -97,19 +97,19 @@ namespace DemoRebooted.Fire
 
         void UploadFireData()
         {
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, FireTexture);
+            GL.ActiveTexture(TextureUnit.Texture0 + FireTexture.TextureUnit);
+            GL.BindTexture(TextureTarget.Texture2D, FireTexture.Id);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, Width, Height, 0, PixelFormat.Luminance,
                           PixelType.UnsignedByte, FireData);           
         }
 
        
         void InitTextures()
-        {            
+        {
             // Fire texture
-            FireTexture = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, FireTexture);
+            FireTexture = new Texture(0);
+            FireTexture.Activate();
+            GL.BindTexture(TextureTarget.Texture2D, FireTexture.Id);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, Width, Height, 0, PixelFormat.Luminance,
                           PixelType.UnsignedByte, FireData);
             GL.Uniform1(Program.Uniform("texFire"), 0);
