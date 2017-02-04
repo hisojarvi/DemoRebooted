@@ -22,14 +22,14 @@ namespace DemoRebooted
 
 
 
-        FireDemoScene FireScene;
+        DemoScene FireScene;
 
         public DemoEngine()
         {
             Stopwatch = new Stopwatch();
             Stopwatch.Start();
 
-            FireScene = new FireDemoScene(this);
+            FireScene = new FireParticleTestScene(this); //new FireDemoScene(this);
         }
 
         public void Init()

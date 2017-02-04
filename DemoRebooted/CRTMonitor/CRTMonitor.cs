@@ -22,6 +22,8 @@ namespace DemoRebooted.CRTMonitor
         Mesh TvBox;
         Mesh BlackBars;
 
+        long ElapsedMillis = 0;
+
         Texture ContentTexture;
 
         Fire8Bit FireEffect;
@@ -63,6 +65,8 @@ namespace DemoRebooted.CRTMonitor
         float rot = 0.0f;
         public void Update(long deltaMillis)
         {
+            ElapsedMillis += deltaMillis;
+
             rot += 0.0f;
             MonitorScaleAnimation.Update(deltaMillis);
             Screen.ModelMatrix = Matrix4.CreateScale(MonitorScaleAnimation.Value);
@@ -72,6 +76,19 @@ namespace DemoRebooted.CRTMonitor
 
             BlackBars.ModelMatrix = Matrix4.CreateScale(2.0f);
             BlackBars.ModelMatrix *= Matrix4.CreateTranslation(new Vector3(0.0f, 0.0f, -2.0f));
+
+            if (ElapsedMillis > 7000)
+            {
+                var alpha = Math.Max(0.0f, 1.0f - (ElapsedMillis - 7000) / 3000.0f);
+                TvBox.Color.W = alpha;
+                Screen.Color.W = alpha;
+            }
+            if (ElapsedMillis > 11000)
+            {
+                var scale = 2.0f + (ElapsedMillis - 11000) / 4000.0f;
+                BlackBars.ModelMatrix = Matrix4.CreateScale(scale);
+                BlackBars.ModelMatrix *= Matrix4.CreateTranslation(new Vector3(0.0f, 0.0f, -2.0f));
+            }
         }
 
         public void Render()

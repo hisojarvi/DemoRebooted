@@ -13,15 +13,27 @@ namespace DemoRebooted
         public int Id { get { return _id; } }
 
         string VertexShaderSource;
+        string GeometryShaderSource;
         string FragmentShaderSource;
         int VertexShader;
+        int GeometryShader;
         int FragmentShader;
+        string[] Varyings;
 
         public ShaderProgram(string vertShaderSource, string fragShaderSource)
         {
             VertexShaderSource = vertShaderSource;
             FragmentShaderSource = fragShaderSource;            
-            Init();
+            Init(false);
+        }
+
+        public ShaderProgram(string vertShaderSource, string geomShaderSource, string fragShaderSource, string[] varyings)
+        {
+            VertexShaderSource = vertShaderSource;
+            GeometryShaderSource = geomShaderSource;
+            FragmentShaderSource = fragShaderSource;
+            Varyings = varyings;
+            Init(true);
         }
 
         public void Use()
@@ -39,23 +51,40 @@ namespace DemoRebooted
             return GL.GetUniformLocation(Id, name);
         }
 
-        void Init()
+        void Init(bool hasGeometryShader)
         {
             _id = GL.CreateProgram();
+
             VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, VertexShaderSource);
             GL.CompileShader(VertexShader);
             CheckShaderCompilationStatus(VertexShader);
-
-            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(FragmentShader, FragmentShaderSource);
-            GL.CompileShader(FragmentShader);
-            CheckShaderCompilationStatus(FragmentShader);
-            
             GL.AttachShader(Id, VertexShader);
-            GL.AttachShader(Id, FragmentShader);
-            GL.BindFragDataLocation(Id, 0, "outColor");
-            GL.LinkProgram(Id);
+
+            if (hasGeometryShader)
+            {
+                GeometryShader = GL.CreateShader(ShaderType.GeometryShader);
+                GL.ShaderSource(GeometryShader, GeometryShaderSource);
+                GL.CompileShader(GeometryShader);
+                CheckShaderCompilationStatus(GeometryShader);
+                GL.AttachShader(Id, GeometryShader);
+            }
+
+            if (FragmentShaderSource != null)
+            {
+                FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+                GL.ShaderSource(FragmentShader, FragmentShaderSource);
+                GL.CompileShader(FragmentShader);
+                CheckShaderCompilationStatus(FragmentShader);
+                GL.AttachShader(Id, FragmentShader);
+                GL.BindFragDataLocation(Id, 0, "outColor");
+            }
+
+            if (Varyings != null)
+            {
+                GL.TransformFeedbackVaryings(Id, Varyings.Length, Varyings, TransformFeedbackMode.InterleavedAttribs);
+            }
+            GL.LinkProgram(Id);           
         }
 
         void CheckShaderCompilationStatus(int shaderPtr)

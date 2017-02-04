@@ -37,7 +37,7 @@ namespace DemoRebooted.Fire
         int[] CanvasElements = { 0, 2, 1,
                                  0, 3, 2 };
 
-        float[] Palette8BitData = { 0.0f, 0.0f, 0.0f,
+        float[] Palette8BitData = { 0.02f, 0.02f, 0.02f,
                                     0.531f, 0.000f, 0.000f,
                                     1.000f, 0.465f, 0.465f,
                                     0.863f, 0.531f, 0.330f,
@@ -155,6 +155,7 @@ namespace DemoRebooted.Fire
         {
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
+            Program.Use();
             GL.Uniform1(UniformBlend, BitBlend);
             Canvas.Render(Camera);
         }

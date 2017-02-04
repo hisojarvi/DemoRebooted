@@ -31,10 +31,12 @@ namespace DemoRebooted
 
         void Init()
         {
+            Program.Use();
+
             VAO = CreateVAO();
             GL.BindVertexArray(VAO);
             VBO = CreateVBO(Vertices);
-            EBO = CreateEBO(Elements);
+            EBO = CreateEBO(Elements);            
             InitVertexAttributes(Program);
             GL.BindVertexArray(0);
         }
@@ -62,14 +64,36 @@ namespace DemoRebooted
 
         public void InitVertexAttributes(ShaderProgram program)
         {
+            
+
             GL.EnableVertexAttribArray(program.Attrib("position"));
             GL.VertexAttribPointer(program.Attrib("position"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
 
-            GL.EnableVertexAttribArray(program.Attrib("texcoord"));
-            GL.VertexAttribPointer(program.Attrib("texcoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+            var texcoordAttrib = program.Attrib("texcoord");
+            if (texcoordAttrib >= 0)
+            {
+                GL.EnableVertexAttribArray(program.Attrib("texcoord"));
+                GL.VertexAttribPointer(program.Attrib("texcoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+            }
 
-            GL.EnableVertexAttribArray(program.Attrib("normal"));
-            GL.VertexAttribPointer(program.Attrib("normal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+            var error = GL.GetError();
+            if (error.HasFlag(ErrorCode.InvalidValue))
+            {
+                Console.WriteLine(error.ToString());
+            }
+            var attrib = program.Attrib("normal");
+            // attribute location is -1 if it's not found, for example if normal is not used and compiler optimizes it out!!
+            if (attrib >= 0)
+            {
+                GL.EnableVertexAttribArray(program.Attrib("normal"));
+                GL.VertexAttribPointer(program.Attrib("normal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+            }
+            error = GL.GetError();
+            if (error.HasFlag(ErrorCode.InvalidValue))
+            {
+                Console.WriteLine(error.ToString());
+            }
+
         }
 
 

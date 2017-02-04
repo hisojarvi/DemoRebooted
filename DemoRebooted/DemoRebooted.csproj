@@ -64,6 +64,8 @@
     <Compile Include="DemoWindow.cs" />
     <Compile Include="DemoScene.cs" />
     <Compile Include="FireDemoScene.cs" />
+    <Compile Include="FireParticles\FireParticleEffect.cs" />
+    <Compile Include="FireParticleTestScene.cs" />
     <Compile Include="Fire\Fire8Bit.cs" />
     <Compile Include="Framebuffer.cs" />
     <Compile Include="Mesh.cs" />
@@ -83,6 +85,12 @@
     <EmbeddedResource Include="CRTMonitor\LightModel.frag" />
     <EmbeddedResource Include="Billboard\Billboard.vert" />
     <EmbeddedResource Include="Billboard\Billboard.frag" />
+    <EmbeddedResource Include="FireParticles\FireParticleUpdate.geom" />
+    <EmbeddedResource Include="FireParticles\FireParticleUpdate.frag" />
+    <EmbeddedResource Include="FireParticles\FireParticleUpdate.vert" />
+    <EmbeddedResource Include="FireParticles\FireParticleRender.vert" />
+    <EmbeddedResource Include="FireParticles\FireParticleRender.geom" />
+    <EmbeddedResource Include="FireParticles\FireParticleRender.frag" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\oldtv.obj" />
   </ItemGroup>
