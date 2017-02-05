@@ -70,15 +70,13 @@ namespace DemoRebooted
                 GL.AttachShader(Id, GeometryShader);
             }
 
-            if (FragmentShaderSource != null)
-            {
-                FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-                GL.ShaderSource(FragmentShader, FragmentShaderSource);
-                GL.CompileShader(FragmentShader);
-                CheckShaderCompilationStatus(FragmentShader);
-                GL.AttachShader(Id, FragmentShader);
-                GL.BindFragDataLocation(Id, 0, "outColor");
-            }
+            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(FragmentShader, FragmentShaderSource);
+            GL.CompileShader(FragmentShader);
+            CheckShaderCompilationStatus(FragmentShader);
+            GL.AttachShader(Id, FragmentShader);
+            GL.BindFragDataLocation(Id, 0, "outColor");
+
 
             if (Varyings != null)
             {
@@ -99,6 +97,19 @@ namespace DemoRebooted
                 int infoLength = 0;
                 GL.GetShaderInfoLog(shaderPtr, 512, out infoLength, infoLog);
                 Console.WriteLine(infoLog.ToString());
+            }
+        }
+
+        public void DebugPrintAttributes()
+        {
+            Console.WriteLine("Attributes:");
+            int count = 0;
+            GL.GetProgram(Id, GetProgramParameterName.ActiveAttributes, out count);
+            for (var i = 0; i < count; i++)
+            {
+                int size;
+                ActiveAttribType type;
+                Console.WriteLine(GL.GetActiveAttrib(Id, i, out size, out type));
             }
         }
     }

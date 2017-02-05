@@ -17,7 +17,7 @@ namespace DemoRebooted.CRTMonitor
 
         ShaderProgram CRTMonitorProgram;
         ShaderProgram TvProgram;
-        Camera Camera;
+        public Camera Camera;
         Mesh Screen;
         Mesh TvBox;
         Mesh BlackBars;

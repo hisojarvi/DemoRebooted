@@ -14,7 +14,8 @@ namespace DemoRebooted
 
         public FireParticleTestScene(DemoEngine engine) : base(engine)
         {
-            FireParticles = new DemoRebooted.FireParticles.FireParticleSystem(10);
+            Camera camera = new Camera();
+            FireParticles = new DemoRebooted.FireParticles.FireParticleSystem(100, camera);
             FireParticles.Init();
         }
 
@@ -27,6 +28,7 @@ namespace DemoRebooted
         public override void Render()
         {
             GL.Viewport(0, 0, Engine.Width, Engine.Height);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             FireParticles.Render();
         }
     }

@@ -24,7 +24,7 @@ namespace DemoRebooted
             FireEffect = new Fire.Fire8Bit(320, 200);            
             CRTMonitorEffect = new CRTMonitor.CRTMonitor(1920, 1080, FireFrameBuffer.Texture);
 
-            FireParticles = new FireParticles.FireParticleSystem(10);
+            FireParticles = new FireParticles.FireParticleSystem(10, CRTMonitorEffect.Camera);
             FireEffect.BitBlend = 0.0f;
             FireEffect.Init();            
             CRTMonitorEffect.Init();
