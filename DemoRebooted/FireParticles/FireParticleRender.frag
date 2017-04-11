@@ -8,6 +8,8 @@ uniform sampler2D texFireSprites;
 uniform sampler2D texFireSpritesPalette;
 uniform int numSprites;
 
+uniform float opacity; 
+
 out vec4 outColor;
 
 float frame()
@@ -27,4 +29,6 @@ void main()
 	outColor = texture2D(texFireSpritesPalette, vec2(outLuminosity.r, 0.0));
 
 	outColor.a = outLuminosity.r;
+	outColor.rgb *= (1.0-fAge) * opacity;
+
 }

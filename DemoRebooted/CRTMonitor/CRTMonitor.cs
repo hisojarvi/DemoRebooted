@@ -21,6 +21,7 @@ namespace DemoRebooted.CRTMonitor
         Mesh Screen;
         Mesh TvBox;
         Mesh BlackBars;
+        PointLight Light1;
 
         long ElapsedMillis = 0;
 
@@ -29,6 +30,10 @@ namespace DemoRebooted.CRTMonitor
         Fire8Bit FireEffect;
 
         Animator MonitorScaleAnimation = new Animator(.2f, 1.65f, 5000, false);
+        Animator MonitorRotXAnimation = new Animator(-0.5f, 0.0f, 5000, false);
+        Animator MonitorRotYAnimation = new Animator(-0.2f, 0.0f, 5000, false);
+        Animator MonitorRotZAnimation = new Animator(0.1f, 0.0f, 5000, false);
+        Animator MonitorScaleAnimation2 = new Animator(1.65f, 1.7f, 4000, false);
 
         public CRTMonitor(int w, int h, Texture contentTex)
         {
@@ -52,26 +57,32 @@ namespace DemoRebooted.CRTMonitor
             o = parser.Object("BlackBars");
             BlackBars = new Mesh(o.GetVertexData(), o.GetElementData(), TvProgram);
             BlackBars.Color = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            Light1 = new PointLight();
+            Light1.Position = new Vector3(-0.5f, -0.5f, 3.5f);
+            Light1.Color = new Vector3(1.0f, 1.0f, 0.8f);
         }
 
         public void Init()
         {
             FireEffect.Init();
-            CRTMonitorProgram.Use();
-            
+            CRTMonitorProgram.Use();            
             GL.Uniform1(GL.GetUniformLocation(CRTMonitorProgram.Id, "texContents"), ContentTexture.TextureUnit);
         }
                              
-        float rot = 0.0f;
         public void Update(long deltaMillis)
         {
             ElapsedMillis += deltaMillis;
 
-            rot += 0.0f;
             MonitorScaleAnimation.Update(deltaMillis);
+            MonitorRotXAnimation.Update(deltaMillis);
+            MonitorRotYAnimation.Update(deltaMillis);
+            MonitorRotZAnimation.Update(deltaMillis);
+
             Screen.ModelMatrix = Matrix4.CreateScale(MonitorScaleAnimation.Value);
+            Screen.ModelMatrix *= Matrix4.CreateRotationX(MonitorRotXAnimation.Value);
+            Screen.ModelMatrix *= Matrix4.CreateRotationY(MonitorRotYAnimation.Value);
+            Screen.ModelMatrix *= Matrix4.CreateRotationZ(MonitorRotZAnimation.Value);
             Screen.ModelMatrix *= Matrix4.CreateTranslation(new Vector3(0.0f, 0.0f, 0.0f));
-            Screen.ModelMatrix *= Matrix4.CreateRotationY(rot);
             TvBox.ModelMatrix = Screen.ModelMatrix;
 
             BlackBars.ModelMatrix = Matrix4.CreateScale(2.0f);
@@ -82,10 +93,14 @@ namespace DemoRebooted.CRTMonitor
                 var alpha = Math.Max(0.0f, 1.0f - (ElapsedMillis - 7000) / 3000.0f);
                 TvBox.Color.W = alpha;
                 Screen.Color.W = alpha;
+                MonitorScaleAnimation2.Update(deltaMillis);
+                Screen.ModelMatrix = Matrix4.CreateScale(MonitorScaleAnimation2.Value);
+                Screen.ModelMatrix *= Matrix4.CreateTranslation(new Vector3(0.0f, 0.0f, 0.0f));
+                TvBox.ModelMatrix = Screen.ModelMatrix;
             }
             if (ElapsedMillis > 11000)
             {
-                var scale = 2.0f + (ElapsedMillis - 11000) / 4000.0f;
+                var scale = 2.0f + (ElapsedMillis - 11000) / 3000.0f;
                 BlackBars.ModelMatrix = Matrix4.CreateScale(scale);
                 BlackBars.ModelMatrix *= Matrix4.CreateTranslation(new Vector3(0.0f, 0.0f, -2.0f));
             }
@@ -99,6 +114,15 @@ namespace DemoRebooted.CRTMonitor
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Uniform3(CRTMonitorProgram.Uniform("lightPosition"), Light1.Position);
+            GL.Uniform3(CRTMonitorProgram.Uniform("lightColor"), Light1.Color);
+            GL.Uniform1(CRTMonitorProgram.Uniform("lightDiffuseIntensity"), Light1.Intensity);
+
+            TvProgram.Use();
+            GL.Uniform3(TvProgram.Uniform("lightPosition"), Light1.Position);
+            GL.Uniform3(TvProgram.Uniform("lightColor"), Light1.Color);
+            GL.Uniform1(TvProgram.Uniform("lightDiffuseIntensity"), Light1.Intensity);
+
             TvBox.Render(Camera);
             Screen.Render(Camera);
             BlackBars.Render(Camera);

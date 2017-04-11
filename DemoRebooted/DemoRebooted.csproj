@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Vec3Animator.cs" />
     <Compile Include="Animator.cs" />
     <Compile Include="Billboard\BillboardEffect.cs" />
     <Compile Include="Camera.cs" />
@@ -70,10 +71,13 @@
     <Compile Include="Framebuffer.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="ObjParser\ObjParser.cs" />
+    <Compile Include="PointLight.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceUtils.cs" />
     <Compile Include="ShaderProgram.cs" />
+    <Compile Include="Sky\SkyBoxEffect.cs" />
+    <Compile Include="StarfieldDemoScene.cs" />
     <Compile Include="Texture.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +97,9 @@
     <EmbeddedResource Include="FireParticles\FireParticleRender.frag" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\oldtv.obj" />
+    <EmbeddedResource Include="Resources\skybox.obj" />
+    <EmbeddedResource Include="Sky\SkyBoxEffect.frag" />
+    <EmbeddedResource Include="Sky\SkyBoxEffect.vert" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\FireSprites.png" />
@@ -102,6 +109,14 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\FireSpritesPalette.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\StarSkyBoxX+.png" />
+    <EmbeddedResource Include="Resources\StarSkyBoxX-.png" />
+    <EmbeddedResource Include="Resources\StarSkyBoxY+.png" />
+    <EmbeddedResource Include="Resources\StarSkyBoxY-.png" />
+    <EmbeddedResource Include="Resources\StarSkyBoxZ+.png" />
+    <EmbeddedResource Include="Resources\StarSkyBoxZ-.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

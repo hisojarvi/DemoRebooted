@@ -14,27 +14,36 @@ namespace DemoRebooted
     public class DemoEngine
     {
         long Frame = 0;
-        long Elapsed = 0;
+        long ElapsedTotal = 0;
+        long ElapsedCurrentScene = 0;
         Stopwatch Stopwatch;
 
         public int Width;
         public int Height;
 
+        public bool Finished = false;
 
-
-        DemoScene FireScene;
+        List<DemoSceneSeqElement> SceneSequence;
+        DemoSceneSeqElement ActiveScene;
+        int ActiveSceneIndex;
 
         public DemoEngine()
         {
             Stopwatch = new Stopwatch();
             Stopwatch.Start();
+            SceneSequence = new List<DemoSceneSeqElement>();
+        }
 
-            FireScene = new FireParticleTestScene(this); //new FireDemoScene(this);
+        public void AddScene(DemoScene scene, long durationMillis)
+        {
+            var e = new DemoSceneSeqElement(scene, durationMillis);
+            SceneSequence.Add(e);
         }
 
         public void Init()
         {
-
+            ActiveSceneIndex = 0;
+            ActiveScene = SceneSequence[ActiveSceneIndex];
         }
 
         public void Resize(int width, int height)
@@ -46,14 +55,28 @@ namespace DemoRebooted
         public void Update()
         {
             Frame++;
-            var deltaMillis = Stopwatch.ElapsedMilliseconds - Elapsed;
-            Elapsed = Stopwatch.ElapsedMilliseconds;
-            FireScene.Update(deltaMillis);
+            var deltaMillis = Stopwatch.ElapsedMilliseconds - ElapsedTotal;
+            ElapsedTotal = Stopwatch.ElapsedMilliseconds;
+            ElapsedCurrentScene += deltaMillis;
+            if (ElapsedCurrentScene >= ActiveScene.DurationMillis)
+            {
+                ActiveSceneIndex++;
+                if (ActiveSceneIndex < SceneSequence.Count)
+                {
+                    ElapsedCurrentScene -= ActiveScene.DurationMillis;
+                    ActiveScene = SceneSequence[ActiveSceneIndex];
+                }
+                else
+                {
+                    Finished = true;
+                }
+            }
+            ActiveScene.Scene.Update(deltaMillis);
         }
 
         public void Render()
         {
-            FireScene.Render();
+            ActiveScene.Scene.Render();
         }
 
         private void RenderSanityCheck()
@@ -64,7 +87,7 @@ namespace DemoRebooted
             // Animate trianGLe
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            GL.Rotate(Elapsed*0.01f, 0.0f, 0.0f, 1.0f);
+            GL.Rotate(ElapsedTotal*0.01f, 0.0f, 0.0f, 1.0f);
 
             // Old school OpenGL
             GL.Begin(PrimitiveType.Triangles);
@@ -72,6 +95,18 @@ namespace DemoRebooted
             GL.Color3(0.0f, 1.0f, 0.0f); GL.Vertex2(0.5f, 1.0f);
             GL.Color3(0.0f, 0.0f, 1.0f); GL.Vertex2(1.0f, 0.0f);
             GL.End();
+        }
+    }
+
+    class DemoSceneSeqElement
+    {
+        public DemoScene Scene;
+        public long DurationMillis;
+
+        public DemoSceneSeqElement(DemoScene scene, long durationMillis)
+        {
+            Scene = scene;
+            DurationMillis = durationMillis;
         }
     }
 }

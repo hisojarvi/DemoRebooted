@@ -7,15 +7,16 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Runtime.InteropServices;
 
 namespace DemoRebooted.FireParticles
 {
 
     public class FireParticleSystem
     {
-        float[] Particles;
+
         int NumParticles;
+        FireParticle[] Particles;        
 
         int[] transformFOs;
         int[] VBOs;
@@ -24,18 +25,21 @@ namespace DemoRebooted.FireParticles
 
         Texture FireSprites;
         Texture FireSpritesPalette;
-        Camera Camera;
+        public Camera Camera;
         Random Rand = new Random();
 
         ShaderProgram UpdateProgram;
         ShaderProgram RenderProgram;
-        int Stride = 8; // floats per particle
+        int Stride = 12; // floats per particle
+
+        public float Opacity = 1.0f;
 
         public FireParticleSystem(int numParticles, Camera camera)
         {
-            Particles = new float[Stride * numParticles];
+            Particles = new FireParticle[numParticles];
             NumParticles = numParticles;
             Camera = camera;
+
             /*
             string[] updateProgramVaryings = { "Position1", "Velocity1", "Size1", "Age1" };
             UpdateProgram = new ShaderProgram(ResourceUtils.ReadResourceFile("DemoRebooted.FireParticles.FireParticleUpdate.vert"),
@@ -65,7 +69,7 @@ namespace DemoRebooted.FireParticles
             {
                 //GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, transformFOs[i]);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBOs[i]);
-                GL.BufferData(BufferTarget.ArrayBuffer, Particles.Length * sizeof(float), Particles, BufferUsageHint.DynamicDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, Particles.Length * Stride * sizeof(float), Particles, BufferUsageHint.DynamicDraw);
                 //GL.BindBufferBase(BufferRangeTarget.TransformFeedbackBuffer, 0, VBOs[i]);              
             }
             InitTextures();
@@ -74,7 +78,6 @@ namespace DemoRebooted.FireParticles
         void InitTextures()
         {
             // Fire sprites
-
             Bitmap texBitmap = ResourceUtils.ReadResourceImage("DemoRebooted.Resources.FireSprites2.png");
             BitmapData data = texBitmap.LockBits(new System.Drawing.Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
                                 ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -95,9 +98,7 @@ namespace DemoRebooted.FireParticles
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-
             
-
             // Fire palette        
             texBitmap = ResourceUtils.ReadResourceImage("DemoRebooted.Resources.FireSpritesPalette.png");
             data = texBitmap.LockBits(new System.Drawing.Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
@@ -120,60 +121,72 @@ namespace DemoRebooted.FireParticles
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
         }
 
-
-        // http://www.astralax.ru/en/articles/inflames
         void InitParticles()
-        {
-            
+        {            
             for (var i = 0; i < NumParticles; i++)
             {
-                InitParticle(i * Stride);
+                Particles[i] = CreateParticle();
             }
         }
 
-        float maxSideSpeed = 1.0f;
-        void InitParticle(int offset)
+        float maxSideSpeed = 0.5f;
+        FireParticle CreateParticle()
         {
-            Particles[offset + 0] = (float)Rand.NextDouble(); // Position
-            Particles[offset + 1] = (float)Rand.NextDouble();
-            Particles[offset + 2] = (float)Rand.NextDouble();
-            Particles[offset + 3] = maxSideSpeed * (float)(Rand.NextDouble() - 0.5); // Velocity
-            Particles[offset + 4] = 0.5f;
-            Particles[offset + 5] = maxSideSpeed * (float)(Rand.NextDouble() - 0.5); 
-            Particles[offset + 6] = (float)Rand.Next(0, 3);    // Type
-            Particles[offset + 7] = 0.0f;                  // Age 
+            FireParticle particle = new FireParticle();
+            particle.Position = new Vector3(-3.0f+6*(float)Rand.NextDouble(),
+                                            0.1f*(float)Rand.NextDouble(),
+                                            -6.0f + 6 * (float)Rand.NextDouble());
+            particle.Velocity = new Vector3(maxSideSpeed * 2.0f * (float)(Rand.NextDouble() - 0.5), 
+                                            1.2f + 0.5f * (float)Rand.NextDouble(), 
+                                            maxSideSpeed * 2.0f * (float)(Rand.NextDouble() - 0.5));
+            particle.Type = (float)Rand.Next(0, 3);
+            particle.Age = 0.0f;
+            particle.MaxAge = 0.1f + 0.8f * (float)Rand.NextDouble();
+            particle.Size = 0.05f + 0.05f * (float)Rand.NextDouble();
+            particle.Rotation = 2.0f * 3.14159f * (float)Rand.NextDouble();
+            return particle;
         }
 
         public void Update(long deltaMillis)
         {
             UpdateParticles(deltaMillis);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOs[CurrentTFO]);
-            GL.BufferData(BufferTarget.ArrayBuffer, Particles.Length * sizeof(float), Particles, BufferUsageHint.StreamDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, Particles.Length * Stride * sizeof(float), Particles, BufferUsageHint.StreamDraw);
         }
 
         void UpdateParticles(long deltaMillis)
         {
             var gravity = 1.0f;
-            var horizontalDemp = 0.3f;
+
             for (var i = 0; i < NumParticles; i++)
             {
-                Particles[Stride * i + 0] += deltaMillis / 1000.0f * Particles[Stride * i + 3];
-                Particles[Stride * i + 1] += deltaMillis / 1000.0f * Particles[Stride * i + 4];
-                Particles[Stride * i + 2] += deltaMillis / 1000.0f * Particles[Stride * i + 5];
-                // Velocity
+                if (Particles[i].Age > Particles[i].MaxAge)
+                {
+                    Particles[i] = CreateParticle();
+                }
+                else
+                {
+                    var particle = Particles[i];
+                    particle.Position += deltaMillis / 1000.0f * particle.Velocity;
 
-                var dx = Particles[Stride * i + 3];
-                dx = dx / (1 + (deltaMillis / 1000.0f));
-                Particles[Stride * i + 3] = dx;
+                    var dx = particle.Velocity.X;
+                    dx = dx / (1 + (deltaMillis / 1000.0f));
+                    particle.Velocity.X = dx;
 
-                Particles[Stride * i + 4] += deltaMillis / 1000.0f * gravity; // Gravity 
+                    particle.Velocity.Y += deltaMillis / 1000.0f * gravity; // Gravity 
 
-                var dz = Particles[Stride * i + 5];
-                dz = dz / (1 + (deltaMillis / 1000.0f));
-                Particles[Stride * i + 5] = dz;
+                    var dz = particle.Velocity.Z;
+                    dz = dz / (1 + (deltaMillis / 1000.0f));
+                    particle.Velocity.Z = dz;
 
-                Particles[Stride * i + 7] += (float)deltaMillis / 1000.0f; // age
+                    particle.Age += (float)deltaMillis / 1000.0f; // age                    
+
+                    particle.Rotation += 1.0f * (float)deltaMillis / 1000.0f;
+
+                    Particles[i] = particle;
+                }
             }
+
         }
 
         public void Render()
@@ -184,27 +197,49 @@ namespace DemoRebooted.FireParticles
             GL.UniformMatrix4(RenderProgram.Uniform("model"), false, ref ModelMatrix);
             GL.UniformMatrix4(RenderProgram.Uniform("view"), false, ref Camera.View);
             GL.UniformMatrix4(RenderProgram.Uniform("projection"), false, ref Camera.Projection);
+            GL.Uniform1(RenderProgram.Uniform("opacity"), Opacity);
 
             GL.Disable(EnableCap.CullFace);
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcColor);
             GL.Disable(EnableCap.DepthTest);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOs[CurrentTFO]);            
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
             GL.EnableVertexAttribArray(2);
+            GL.EnableVertexAttribArray(3);
+            GL.EnableVertexAttribArray(4);
+            GL.EnableVertexAttribArray(5);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Stride * sizeof(float), 0); // Position
-            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, Stride * sizeof(float), 6 * sizeof(float)); // Size
+            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, Stride * sizeof(float), 6 * sizeof(float)); // Sprite
             GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, Stride * sizeof(float), 7 * sizeof(float)); // Age
+            GL.VertexAttribPointer(3, 1, VertexAttribPointerType.Float, false, Stride * sizeof(float), 8 * sizeof(float)); // MaxAge
+            GL.VertexAttribPointer(4, 1, VertexAttribPointerType.Float, false, Stride * sizeof(float), 9 * sizeof(float)); // Size
+            GL.VertexAttribPointer(5, 1, VertexAttribPointerType.Float, false, Stride * sizeof(float), 10 * sizeof(float)); // Rotation
             GL.DrawArrays(PrimitiveType.Points, 0, NumParticles);
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
             GL.DisableVertexAttribArray(2);
+            GL.DisableVertexAttribArray(3);
+            GL.DisableVertexAttribArray(4);
 
             //CurrentVBO = CurrentTFO;
             //CurrentTFO = (CurrentTFO + 1) & 0x1;
         }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct FireParticle
+    {
+        public Vector3 Position;
+        public Vector3 Velocity;
+        public float Type;
+        public float Age;
+        public float MaxAge;
+        public float Size;
+        public float Rotation;
+        public float RotationSpeed;
     }
 }
 /*

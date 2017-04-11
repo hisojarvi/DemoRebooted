@@ -15,6 +15,7 @@ namespace DemoRebooted.Fire
         public int Height { get; }
 
         public float BitBlend = 0.0f;
+        public double EmitProbability = 0.12;
 
         ShaderProgram Program;
         Mesh Canvas;
@@ -45,10 +46,18 @@ namespace DemoRebooted.Fire
                                     1.0f, 1.0f, 1.0f,};
 
         float[] Palette16BitData = { 0.0f, 0.0f, 0.0f,
-                                    1.0f, 0.0f, 0.0f,
-                                    1.0f, 1.0f, 0.0f,
+                                     0.3f, 0.0f, 0.0f,
+                                     0.8f, 0.1f, 0.0f,
+                                     0.95f, 0.4f, 0.22f,
+                                     0.95f, 0.8f, 0.22f,
                                     1.0f, 1.0f, 1.0f,};
 
+
+        /*        float[] Palette16BitData = { 0.0f, 0.0f, 0.0f,
+                                            1.0f, 0.0f, 0.0f,
+                                            1.0f, 1.0f, 0.0f,
+                                            1.0f, 1.0f, 1.0f,};
+        */
         byte[] FireData;
 
         public Fire8Bit(int w, int h)
@@ -69,13 +78,12 @@ namespace DemoRebooted.Fire
             InitTextures();   
         }
 
-
         byte fade = 2;
         void UpdateFireData()
         {
             for (var i = Width * (Height - 1); i < FireData.Length; i++)
             {
-                if (RNG.Next(100) > 88)
+                if (RNG.NextDouble() < EmitProbability)
                 {
                     FireData[i] = (byte)Math.Min(255, FireData[i] + RNG.Next(40));
                 }

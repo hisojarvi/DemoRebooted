@@ -8,11 +8,15 @@ uniform vec4 color;
 uniform mat4 view;
 uniform sampler2D texContents;
 
-vec3 lightPosition = vec3(-0.5, -0.5, 3.5);
+uniform vec3 lightPosition;
+uniform vec3 lightColor;
+uniform float lightDiffuseIntensity;
+
 vec3 ambientLightColor = vec3(0.8, 0.8, 1.0);
-vec3 lightColor = vec3(1.0, 1.0, 0.9);
 float lightAmbientIntensity = 0.4;
-float lightDiffuseIntensity = 0.8;
+
+
+
 
 vec3 material_ambient = color.rgb;
 vec3 material_diffuse = color.rgb;
